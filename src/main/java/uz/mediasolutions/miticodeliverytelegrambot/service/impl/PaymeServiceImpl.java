@@ -250,6 +250,13 @@ public class PaymeServiceImpl implements PaymeService {
     @SneakyThrows
     private boolean checkPaycomUserAuth(String basicAuth, JSONRPC2Response response) {
 
+        if (basicAuth == null) {
+            response.setError(new JSONRPC2Error(-32504,
+                    "Error authentication",
+                    "auth"));
+            return false;
+        }
+
         basicAuth = basicAuth.substring("Basic".length()).trim();
 
         byte[] decode = Base64.getDecoder().decode(basicAuth);
@@ -267,12 +274,14 @@ public class PaymeServiceImpl implements PaymeService {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(client, null, new ArrayList<>());
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                response.setError(new JSONRPC2Error(-32504,
+                        "Error authentication",
+                        "auth"));
+                return false;
             }
         }
-        response.setError(new JSONRPC2Error(-32504,
-                "Error authentication",
-                "auth"));
-        return false;
+        return true;
     }
 
     @Override
@@ -281,7 +290,7 @@ public class PaymeServiceImpl implements PaymeService {
         JSONRPC2Response response = new JSONRPC2Response(requestForm.getId());
 
         //BASIC AUTH BO'SH BO'LSA YOKI XATO KELGAN BO'LSA ERROR RESPONSE BERAMIZ
-        if (authorization == null || checkPaycomUserAuth(authorization, response)) {
+        if (checkPaycomUserAuth(authorization, response)) {
             return response.toJSONObject();
         }
 
