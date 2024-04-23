@@ -894,7 +894,7 @@ public class MakeService {
     }
 
     public String createPaymentUrl(Long orderId, Integer amount) {
-        String formatUrl = "m=" + paymeMerchantId + ";ac.order_id=" + orderId + ";a=" + amount;
+        String formatUrl = "m=" + paymeMerchantId + ";ac.order=" + orderId + ";a=" + amount * 100;
         String encoded = Base64.getEncoder().encodeToString(formatUrl.getBytes());
         return "https://checkout.paycom.uz/" + encoded;
     }

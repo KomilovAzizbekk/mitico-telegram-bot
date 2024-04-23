@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDate;
+import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDateDeleted;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsLong;
 
 import javax.persistence.*;
@@ -20,7 +21,7 @@ import java.util.List;
 @DynamicUpdate
 @Entity
 @Table(name = "categories")
-public class Category extends AbsDate {
+public class Category extends AbsDateDeleted {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

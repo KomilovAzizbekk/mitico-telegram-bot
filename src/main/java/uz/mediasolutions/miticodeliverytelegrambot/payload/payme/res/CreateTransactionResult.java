@@ -1,5 +1,6 @@
 package uz.mediasolutions.miticodeliverytelegrambot.payload.payme.res;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,9 +12,10 @@ import java.util.Date;
 @NoArgsConstructor
 public class CreateTransactionResult {
 
-    private Date createTime;
+    @JsonProperty(value = "create_time")
+    private long createTime;
 
-    private Long transaction;
+    private String transaction;
 
     private Integer state;
 

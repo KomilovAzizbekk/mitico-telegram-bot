@@ -7,17 +7,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.Category;
+import uz.mediasolutions.miticodeliverytelegrambot.entity.Product;
 import uz.mediasolutions.miticodeliverytelegrambot.exceptions.RestException;
 import uz.mediasolutions.miticodeliverytelegrambot.manual.ApiResult;
 import uz.mediasolutions.miticodeliverytelegrambot.mapper.CategoryMapper;
 import uz.mediasolutions.miticodeliverytelegrambot.payload.CategoryDTO;
 import uz.mediasolutions.miticodeliverytelegrambot.repository.CategoryRepository;
+import uz.mediasolutions.miticodeliverytelegrambot.repository.ProductRepository;
+import uz.mediasolutions.miticodeliverytelegrambot.repository.VariationRepository;
 import uz.mediasolutions.miticodeliverytelegrambot.service.abs.CategoryService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -26,6 +30,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final ProductRepository productRepository;
+    private final VariationRepository variationRepository;
 
     @Override
     public ApiResult<Page<CategoryDTO>> getAll(int page, int size, String name, boolean active) {
@@ -88,7 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
             String imageUrl = category.getImageUrl();
             if (imageUrl != null) {
                 if (!Objects.equals(imageUrl, categoryDTO.getImageUrl())) {
-                    String imagePath = "delivery-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
+                    String imagePath = "mitico-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
                     Path path = Paths.get(imagePath);
                     Files.deleteIfExists(path);
                 }
@@ -112,12 +118,17 @@ public class CategoryServiceImpl implements CategoryService {
                 () -> RestException.restThrow("ID NOT FOUND", HttpStatus.BAD_REQUEST));
         String imageUrl = category.getImageUrl();
         if (imageUrl != null) {
-            String imagePath = "delivery-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
+            String imagePath = "mitico-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
             Path path = Paths.get(imagePath);
             Files.deleteIfExists(path);
         }
+        List<Product> products = productRepository.findAllByCategoryId(category.getId());
         try {
             categoryRepository.deleteById(id);
+            productRepository.deleteAll(products);
+            for (Product product : products) {
+                variationRepository.deleteAll(variationRepository.findAllByProductId(product.getId()));
+            }
             return ApiResult.success("DELETED SUCCESSFULLY");
         } catch (Exception e) {
             throw RestException.restThrow("CANNOT DELETE", HttpStatus.CONFLICT);

@@ -12,6 +12,7 @@ import uz.mediasolutions.miticodeliverytelegrambot.manual.ApiResult;
 import uz.mediasolutions.miticodeliverytelegrambot.mapper.MeasureUnitMapper;
 import uz.mediasolutions.miticodeliverytelegrambot.payload.MeasureUnitDTO;
 import uz.mediasolutions.miticodeliverytelegrambot.repository.MeasureUnitRepository;
+import uz.mediasolutions.miticodeliverytelegrambot.repository.VariationRepository;
 import uz.mediasolutions.miticodeliverytelegrambot.service.abs.MeasureUnitService;
 
 @Service
@@ -20,6 +21,7 @@ public class MeasureUnitServiceImpl implements MeasureUnitService {
 
     private final MeasureUnitRepository measureUnitRepository;
     private final MeasureUnitMapper measureUnitMapper;
+    private final VariationRepository variationRepository;
 
     @Override
     public ApiResult<Page<MeasureUnitDTO>> getAll(int page, int size, String name) {
@@ -68,6 +70,7 @@ public class MeasureUnitServiceImpl implements MeasureUnitService {
     public ApiResult<?> delete(Long id) {
         try {
             measureUnitRepository.deleteById(id);
+            variationRepository.deleteAll(variationRepository.findAllByMeasureUnitId(id));
             return ApiResult.success("DELETED SUCCESSFULLY");
         } catch (Exception e) {
             throw RestException.restThrow("CANNOT DELETE", HttpStatus.CONFLICT);

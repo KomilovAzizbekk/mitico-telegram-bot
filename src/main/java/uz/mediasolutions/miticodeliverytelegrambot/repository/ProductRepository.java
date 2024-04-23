@@ -3,6 +3,8 @@ package uz.mediasolutions.miticodeliverytelegrambot.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.Category;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.Product;
 
@@ -24,6 +26,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByNameUzOrNameRu(String nameUz, String nameRu);
 
-    List<Product> findAllByCategoryIdAndVariationsIsNotEmptyAndActiveIsTrueAndCategoryActiveIsTrueAndVariationsActiveIsTrueOrderByNumberAsc(Long categoryId);
+    @Query(value = "SELECT DISTINCT p.* FROM products p\n" +
+            "       INNER JOIN variations v on p.id = v.product_id\n" +
+            "       INNER JOIN categories c on c.id = p.category_id\n" +
+            "       WHERE c.active = true\n" +
+            "       AND v.active = true\n" +
+            "       AND p.active = true\n" +
+            "       AND p.category_id = :categoryId\n" +
+            "       AND v is not null\n" +
+            "       AND v.deleted = false\n" +
+            "       AND p.deleted = false\n" +
+            "       ORDER BY p.number", nativeQuery = true)
+    List<Product> findAllByCategoryIdAndVariationsIsNotEmptyAndActiveIsTrueAndCategoryActiveIsTrueAndVariationsActiveIsTrueOrderByNumberAsc(@Param("categoryId") Long categoryId);
+
+    List<Product> findAllByCategoryId(Long id);
+
+    @Query(value = "select * from products p where p.id=:id", nativeQuery = true)
+    Product getProduct(Long id);
 
 }

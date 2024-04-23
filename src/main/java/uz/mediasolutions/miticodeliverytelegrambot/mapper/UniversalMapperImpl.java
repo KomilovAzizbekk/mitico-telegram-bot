@@ -7,6 +7,7 @@ import uz.mediasolutions.miticodeliverytelegrambot.entity.*;
 import uz.mediasolutions.miticodeliverytelegrambot.enums.LanguageName;
 import uz.mediasolutions.miticodeliverytelegrambot.exceptions.RestException;
 import uz.mediasolutions.miticodeliverytelegrambot.payload.*;
+import uz.mediasolutions.miticodeliverytelegrambot.repository.ProductRepository;
 import uz.mediasolutions.miticodeliverytelegrambot.repository.TgUserRepository;
 import uz.mediasolutions.miticodeliverytelegrambot.repository.VariationRepository;
 
@@ -20,6 +21,7 @@ public class UniversalMapperImpl implements UniversalMapper {
 
     private final TgUserRepository tgUserRepository;
     private final VariationRepository variationRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public List<VariationWebDTO> toVariationWebDTOList(List<Variation> variations, String chatId) {
@@ -40,6 +42,7 @@ public class UniversalMapperImpl implements UniversalMapper {
             return null;
         }
 
+        variation = variationRepository.getVariation(variation.getId());
         TgUser tgUser = tgUserRepository.findByChatId(chatId);
 
         VariationWebDTO.VariationWebDTOBuilder builder = VariationWebDTO.builder();
@@ -79,6 +82,8 @@ public class UniversalMapperImpl implements UniversalMapper {
         if (product == null) {
             return null;
         }
+
+        product = productRepository.getProduct(product.getId());
 
         TgUser tgUser = tgUserRepository.findByChatId(chatId);
         Product2WebDTO.Product2WebDTOBuilder builder = Product2WebDTO.builder();

@@ -12,4 +12,9 @@ public interface OrderTransactionRepository extends JpaRepository<OrderTransacti
     Optional<OrderTransaction> findByPaycomId(String id);
 
     List<OrderTransaction> findAllByStateAndCreateTimeBetween(TransactionState transactionState, Timestamp timestamp, Timestamp timestamp1);
+
+    boolean existsByPaycomIdAndOrderId(String id, Long id1);
+
+    boolean existsByOrderId(Long order);
+
 }

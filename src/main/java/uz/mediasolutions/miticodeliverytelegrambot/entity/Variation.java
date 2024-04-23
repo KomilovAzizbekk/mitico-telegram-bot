@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDate;
+import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDateDeleted;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsLong;
 
 import javax.persistence.*;
@@ -19,7 +20,7 @@ import javax.persistence.*;
 @DynamicUpdate
 @Entity
 @Table(name = "variations")
-public class Variation extends AbsDate {
+public class Variation extends AbsDateDeleted {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

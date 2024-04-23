@@ -5,10 +5,9 @@ import com.thetransactioncompany.jsonrpc2.JSONRPC2Response;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import net.minidev.json.JSONObject;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.Order;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.payme.Client;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.payme.OrderTransaction;
@@ -31,8 +30,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class PaymeServiceImpl implements PaymeService {
-
-
     private final long time_expired = 43_200_000L;
 
     private final OrderRepository orderRepository;
@@ -87,7 +84,7 @@ public class PaymeServiceImpl implements PaymeService {
 
         //ORDER SUM BILAN PAYCOMDAN KELGAN SUM TENGLIGI TEKSHIRILYAPTI
         Order order = optionalOrder.get();
-        if (order.getTotalPrice() != requestForm.getParams().getAmount()) {
+        if (((int) order.getTotalPrice()) *100 != requestForm.getParams().getAmount()) {
             response.setError(new JSONRPC2Error(
                     -31001,
                     "Wrong amount",
@@ -111,33 +108,63 @@ public class PaymeServiceImpl implements PaymeService {
 
 
     public void createTransaction(PaycomRequestForm requestForm, JSONRPC2Response response) {
-        Optional<OrderTransaction> optionalTransaction = transactionRepository.findByPaycomId(requestForm.getParams().getId());
 
+        Optional<Order> orderOptional = orderRepository.findById(requestForm.getParams().getAccount().getOrder());
+
+        if (orderOptional.isEmpty()) {
+            response.setError(new JSONRPC2Error(
+                    -31050,
+                    "Order not found",
+                    "order"));
+            return;
+        }
+
+        if (requestForm.getParams().getAmount() != ((int) orderOptional.get().getTotalPrice()) *100) {
+            response.setError(new JSONRPC2Error(
+                    -31001,
+                    "Wrong amount",
+                    "amount"));
+            return;
+        }
+
+        Optional<OrderTransaction> optionalTransaction = transactionRepository.findByPaycomId(requestForm.getParams().getId());
         if (optionalTransaction.isEmpty()) {
             if (checkPerformTransaction(requestForm, response)) {
-
-                Optional<Order> orderOptional = orderRepository.findById(requestForm.getParams().getAccount().getOrder());
-                if (orderOptional.isEmpty()) {
+                if (transactionRepository.existsByOrderId(requestForm.getParams().getAccount().getOrder())) {
                     response.setError(new JSONRPC2Error(
-                            -31050,
-                            "Order not found",
-                            "order"));
+                            -31099,
+                            "Transaction is already processing",
+                            "transaction"
+                    ));
                     return;
                 }
-
-                OrderTransaction newTransaction = new OrderTransaction(requestForm.getParams().getId(), new Timestamp(requestForm.getParams().getTime()),
-                        TransactionState.STATE_IN_PROGRESS, orderOptional.get());
-                transactionRepository.save(newTransaction);
-                response.setResult(new CreateTransactionResult(newTransaction.getCreateTime(), newTransaction.getId(), newTransaction.getState().getCode()));
+                OrderTransaction orderTransaction = new OrderTransaction(requestForm.getParams().getId(),
+                        new Timestamp(requestForm.getParams().getTime()),
+                        new Timestamp(requestForm.getParams().getTime()),
+                        TransactionState.STATE_IN_PROGRESS, orderOptional.get().getId());
+                transactionRepository.save(orderTransaction);
+                response.setResult(new CreateTransactionResult(orderTransaction.getCreateTime().getTime(), String.valueOf(orderTransaction.getId()), orderTransaction.getState().getCode()));
                 return;
             }
         } else {
             OrderTransaction transaction = optionalTransaction.get();
+            if (transactionRepository.existsByPaycomIdAndOrderId(requestForm.getParams().getId(), orderOptional.get().getId())) {
+                response.setResult(new CreateTransactionResult(transaction.getCreateTime().getTime(), String.valueOf(transaction.getId()), transaction.getState().getCode()));
+                return;
+            }
             if (transaction.getState() == TransactionState.STATE_IN_PROGRESS) {
                 if (System.currentTimeMillis() - transaction.getPaycomTime().getTime() > time_expired) {
+                    transaction.setState(TransactionState.STATE_CANCELED);
+                    transaction.setReason(4);
+                    transactionRepository.save(transaction);
                     response.setError(new JSONRPC2Error(-31008, "Unable to complete operation", "transaction"));
                 } else {
-                    response.setResult(new CreateTransactionResult(transaction.getCreateTime(), transaction.getId(), transaction.getState().getCode()));
+                    response.setError(new JSONRPC2Error(
+                            -31099,
+                            "Transaction is already processing",
+                            "transaction"
+                    ));
+                    return;
                 }
             } else {
                 response.setError(new JSONRPC2Error(-31008, "Unable to complete operation", "transaction"));
@@ -148,7 +175,6 @@ public class PaymeServiceImpl implements PaymeService {
     }
 
 
-    @SneakyThrows
     public void performTransaction(PaycomRequestForm requestForm, JSONRPC2Response response) {
         Optional<OrderTransaction> optionalTransaction = transactionRepository.findByPaycomId(requestForm.getParams().getId());
         if (optionalTransaction.isPresent()) {
@@ -157,19 +183,24 @@ public class PaymeServiceImpl implements PaymeService {
                 if (System.currentTimeMillis() - transaction.getPaycomTime().getTime() > time_expired) {
                     transaction.setState(TransactionState.STATE_CANCELED);
                     transactionRepository.save(transaction);
-                    response.setError(new JSONRPC2Error(-31008, "Unable to complete operation", "transaction"));
+                    response.setError(new JSONRPC2Error(-31008,
+                            "Unable to complete operation",
+                            "transaction"));
                 } else {
                     transaction.setState(TransactionState.STATE_DONE);
-                    transaction.setPerformTime(new Timestamp(new Date().getTime()));
+                    transaction.setPerformTime(new Timestamp(System.currentTimeMillis()));
                     transactionRepository.save(transaction);
 
-                    tgService.execute(tgService.whenSendOrderToChannelClickOrPayme(transaction.getOrder().getUser().getChatId()));
-                    tgService.execute(tgService.whenSendOrderToUser(transaction.getOrder().getUser().getChatId()));
-
-                    response.setResult(new PerformTransactionResult(transaction.getId(), transaction.getPerformTime(), transaction.getState().getCode()));
+                    try {
+                        tgService.execute(tgService.whenSendOrderToUser(transaction.getOrder().getUser().getChatId()));
+                        tgService.execute(tgService.whenSendOrderToChannelClickOrPayme(transaction.getOrder().getUser().getChatId()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    response.setResult(new PerformTransactionResult(String.valueOf(transaction.getId()), transaction.getPerformTime().getTime(), transaction.getState().getCode()));
                 }
             } else if (transaction.getState() == TransactionState.STATE_DONE) {
-                response.setResult(new PerformTransactionResult(transaction.getId(), transaction.getPerformTime(), transaction.getState().getCode()));
+                response.setResult(new PerformTransactionResult(String.valueOf(transaction.getId()), transaction.getPerformTime().getTime(), transaction.getState().getCode()));
             } else {
                 response.setError(new JSONRPC2Error(-31008, "Unable to complete operation", "transaction"));
             }
@@ -182,17 +213,19 @@ public class PaymeServiceImpl implements PaymeService {
         Optional<OrderTransaction> optionalTransaction = transactionRepository.findByPaycomId(requestForm.getParams().getId());
         if (optionalTransaction.isPresent()) {
             OrderTransaction transaction = optionalTransaction.get();
+
+            if (transaction.getState().equals(TransactionState.STATE_POST_CANCELED) ||
+                    transaction.getState().equals(TransactionState.STATE_CANCELED)) {
+                response.setResult(new CancelTransactionResult(String.valueOf(transaction.getId()),
+                        transaction.getCancelTime().getTime(),
+                        transaction.getState().getCode()));
+                return;
+            }
+
             if (transaction.getState() == TransactionState.STATE_IN_PROGRESS) {
                 transaction.setState(TransactionState.STATE_CANCELED);
             } else if (transaction.getState() == TransactionState.STATE_DONE) {
-                if (transaction.getOrder().getOrderStatus().getName().equals(OrderStatusName.ACCEPTED)) {
-                    response.setError(new JSONRPC2Error(-31007,
-                            "Unable to cancel transaction",
-                            "transaction"));
-                    return;
-                } else {
-                    transaction.setState(TransactionState.STATE_POST_CANCELED);
-                }
+                transaction.setState(TransactionState.STATE_POST_CANCELED);
             } else {
                 transaction.setState(TransactionState.STATE_CANCELED);
             }
@@ -200,7 +233,9 @@ public class PaymeServiceImpl implements PaymeService {
             transaction.setReason(requestForm.getParams().getReason());
             transactionRepository.save(transaction);
 
-            response.setResult(new CancelTransactionResult(transaction.getId(), transaction.getCancelTime(), transaction.getState().getCode()));
+            response.setResult(new CancelTransactionResult(String.valueOf(transaction.getId()),
+                    transaction.getCancelTime().getTime(),
+                    transaction.getState().getCode()));
         } else {
             response.setError(new JSONRPC2Error(-31003,
                     "Transaction not found",
@@ -213,8 +248,11 @@ public class PaymeServiceImpl implements PaymeService {
         Optional<OrderTransaction> optionalTransaction = transactionRepository.findByPaycomId(requestForm.getParams().getId());
         if (optionalTransaction.isPresent()) {
             OrderTransaction transaction = optionalTransaction.get();
-            response.setResult(new CheckTransactionResult(transaction.getCreateTime(), transaction.getPerformTime(), transaction.getCancelTime(),
-                    transaction.getId(), transaction.getState().getCode(), transaction.getReason() != null ? transaction.getReason() : null));
+            response.setResult(new CheckTransactionResult(
+                    transaction.getCreateTime() == null ? 0 : transaction.getCreateTime().getTime(),
+                    transaction.getPerformTime() == null ? 0 : transaction.getPerformTime().getTime(),
+                    transaction.getCancelTime() == null ? 0 : transaction.getCancelTime().getTime(),
+                    String.valueOf(transaction.getId()), transaction.getState().getCode(), transaction.getReason() != null ? transaction.getReason() : null));
         } else {
             response.setError(new JSONRPC2Error(-31003,
                     "Transaction not found",
@@ -254,7 +292,7 @@ public class PaymeServiceImpl implements PaymeService {
             response.setError(new JSONRPC2Error(-32504,
                     "Error authentication",
                     "auth"));
-            return false;
+            return true;
         }
 
         basicAuth = basicAuth.substring("Basic".length()).trim();
@@ -269,19 +307,14 @@ public class PaymeServiceImpl implements PaymeService {
 
         if (optionalClient.isPresent()) {
             Client client = optionalClient.get();
-            if (passwordEncoder.matches(credentials[1], client.getPassword())) {
-
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(client, null, new ArrayList<>());
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
+            if (!passwordEncoder.matches(credentials[1], client.getPassword())) {
                 response.setError(new JSONRPC2Error(-32504,
                         "Error authentication",
                         "auth"));
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     @Override
