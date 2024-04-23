@@ -3,6 +3,8 @@ package uz.mediasolutions.miticodeliverytelegrambot.entity;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDate;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDateDeleted;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsLong;
@@ -19,6 +21,8 @@ import javax.persistence.*;
 @DynamicInsert
 @DynamicUpdate
 @Entity
+@Where(clause = "deleted=false")
+@SQLDelete(sql = "UPDATE variations SET deleted=true WHERE id=?")
 @Table(name = "variations")
 public class Variation extends AbsDateDeleted {
 

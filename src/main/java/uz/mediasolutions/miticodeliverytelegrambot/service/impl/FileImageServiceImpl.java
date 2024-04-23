@@ -79,7 +79,7 @@ public class FileImageServiceImpl implements FileImageService {
     }
 
     private String constructImageUrl(String fileName) {
-        String baseUrl = environment.getProperty("server.base-url", "https://hamdi-usta-backend.medias.uz" + Rest.BASE_PATH);
+        String baseUrl = environment.getProperty("server.base-url", "https://mitico.medias.uz" + Rest.BASE_PATH);
         return baseUrl + "images/get/" + fileName;
     }
 }

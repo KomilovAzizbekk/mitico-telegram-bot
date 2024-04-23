@@ -3,6 +3,8 @@ package uz.mediasolutions.miticodeliverytelegrambot.entity;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDate;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDateDeleted;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsLong;
@@ -20,6 +22,8 @@ import java.util.List;
 @DynamicInsert
 @DynamicUpdate
 @Entity
+@Where(clause = "deleted=false")
+@SQLDelete(sql = "UPDATE measure_units SET deleted=true WHERE id=?")
 @Table(name = "measure_units")
 public class MeasureUnit extends AbsDateDeleted {
 
@@ -32,8 +36,5 @@ public class MeasureUnit extends AbsDateDeleted {
 
     @Column(name = "name_ru", unique = true)
     private String nameRu;
-
-    @OneToMany(mappedBy = "measure", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Variation> variations;
 
 }

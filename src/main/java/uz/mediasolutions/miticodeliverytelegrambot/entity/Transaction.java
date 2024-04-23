@@ -26,10 +26,10 @@ public class Transaction extends AbsLong {
     @Column(name = "sum")
     private float sum;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private PaymentStatus status;
-
     @OneToOne(mappedBy = "transaction")
     private Order order;
+
+    @Column(name = "payment_url")
+    private String paymentUrl;
 
 }

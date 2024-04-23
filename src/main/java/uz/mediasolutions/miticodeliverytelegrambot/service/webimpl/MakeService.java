@@ -54,7 +54,7 @@ public class MakeService {
     private final BranchRepository branchRepository;
     private final ConstantsRepository constantsRepository;
     private final ClickInvoiceRepository clickInvoiceRepository;
-    private final OrderTransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;
 
     @Value("${click.service.id}")
     private String clickServiceId;
@@ -881,10 +881,9 @@ public class MakeService {
         } else if (order.getPaymentProviders().getName().equals(ProviderName.PAYME)) {
 
             String paymentUrl = createPaymentUrl(order.getId(), (int) order.getTotalPrice());
-            OrderTransaction newTransaction = new OrderTransaction(paymentUrl,
-                    paymeMerchantId, new Timestamp(System.currentTimeMillis()),
-                    TransactionState.STATE_IN_PROGRESS, order);
-            OrderTransaction save = transactionRepository.save(newTransaction);
+            Transaction transaction = new Transaction(paymentProvidersRepository.findByName(ProviderName.PAYME),
+                    order.getTotalPrice(), order, paymentUrl);
+            Transaction save = transactionRepository.save(transaction);
 
             sendMessage.setText(String.format(getMessage(Message.FOR_PAYMENT, getUserLanguage(chatId)), save.getId()));
             sendMessage.setReplyMarkup(forGoPayment(update, paymentUrl));

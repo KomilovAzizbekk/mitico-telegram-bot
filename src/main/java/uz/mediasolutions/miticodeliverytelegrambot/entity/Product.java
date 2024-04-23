@@ -3,6 +3,8 @@ package uz.mediasolutions.miticodeliverytelegrambot.entity;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDate;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsDateDeleted;
 import uz.mediasolutions.miticodeliverytelegrambot.entity.template.AbsLong;
@@ -20,6 +22,8 @@ import java.util.List;
 @DynamicInsert
 @DynamicUpdate
 @Entity
+@Where(clause = "deleted=false")
+@SQLDelete(sql = "UPDATE products SET deleted=true WHERE id=?")
 @Table(name = "products")
 public class Product extends AbsDateDeleted {
 
@@ -44,9 +48,6 @@ public class Product extends AbsDateDeleted {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Variation> variations;
 
     @Column(name = "image_url")
     private String imageUrl;

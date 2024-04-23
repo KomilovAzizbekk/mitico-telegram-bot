@@ -25,7 +25,6 @@ public class TransactionServiceImpl {
                 () -> RestException.restThrow("ORDER ID NOT FOUND", HttpStatus.BAD_REQUEST));
         Transaction transaction = Transaction.builder()
                 .sum(order.getTotalPrice())
-                .status(paymentStatusRepository.findByName(PaymentStatusName.PENDING))
                 .paymentProvider(order.getPaymentProviders())
                 .order(order)
                 .build();
