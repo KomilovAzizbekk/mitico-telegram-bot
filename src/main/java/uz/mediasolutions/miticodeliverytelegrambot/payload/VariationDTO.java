@@ -27,4 +27,6 @@ public class VariationDTO {
 
     private Long productId;
 
+    private boolean active;
+
 }

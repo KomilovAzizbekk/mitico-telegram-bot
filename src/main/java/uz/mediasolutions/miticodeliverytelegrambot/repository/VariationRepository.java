@@ -19,6 +19,6 @@ public interface VariationRepository extends JpaRepository<Variation, Long> {
 
     boolean existsByNameUzOrNameRu(String nameUz, String nameRu);
 
-    List<Variation> findAllByProductIdOrderByNumberAsc(Long productId);
+    List<Variation> findAllByProductIdAndActiveIsTrueOrderByNumberAsc(Long productId);
 
 }

@@ -31,7 +31,7 @@ public class WebVariationServiceImpl implements WebVariationService {
     @Override
     public ApiResult<List<VariationWebDTO>> getAllByProductId(String chatId, Long productId) {
         if (tgUserRepository.existsByChatId(chatId)) {
-            List<Variation> variations = variationRepository.findAllByProductIdOrderByNumberAsc(productId);
+            List<Variation> variations = variationRepository.findAllByProductIdAndActiveIsTrueOrderByNumberAsc(productId);
             List<VariationWebDTO> variationWebDTOList = universalMapper.toVariationWebDTOList(variations, chatId);
             return ApiResult.success(variationWebDTOList);
         } else {

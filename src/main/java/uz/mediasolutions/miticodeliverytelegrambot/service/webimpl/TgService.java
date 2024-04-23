@@ -39,15 +39,15 @@ public class TgService extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
 //        return "uygogo_bot";
-        return "sakaka_bot";
-//        return "mitico_uz_bot";
+//        return "sakaka_bot";
+        return "mitico_uz_bot";
     }
 
     @Override
     public String getBotToken() {
 //        return "5049026983:AAHjxVS4KdTmMLp4x_ir9khH4w1tB4h6pPQ";
-        return "6052104473:AAEscLILevwPMcG_00PYqAf-Kpb7eIUCIGg";
-//        return "7138374544:AAGUw_yhhSu-DPNs4rrnvt68v1JENDOQa7o";
+//        return "6052104473:AAEscLILevwPMcG_00PYqAf-Kpb7eIUCIGg";
+        return "7138374544:AAGUw_yhhSu-DPNs4rrnvt68v1JENDOQa7o";
     }
 
     @SneakyThrows

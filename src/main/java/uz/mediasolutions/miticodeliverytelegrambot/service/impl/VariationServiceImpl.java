@@ -79,6 +79,7 @@ public class VariationServiceImpl implements VariationService {
                     () -> RestException.restThrow("PRODUCT ID NOT FOUND", HttpStatus.BAD_REQUEST));
 
             variation.setNumber(dto.getNumber());
+            variation.setActive(dto.isActive());
             variation.setPrice(dto.getPrice());
             variation.setMeasureUnit(measureUnit);
             variation.setMeasure(dto.getMeasure());

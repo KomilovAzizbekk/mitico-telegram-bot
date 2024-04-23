@@ -34,6 +34,9 @@ public class Variation extends AbsDate {
     @Column(name = "number", columnDefinition = "serial")
     private Long number;
 
+    @Column(name = "active")
+    private boolean active;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private MeasureUnit measureUnit;
 

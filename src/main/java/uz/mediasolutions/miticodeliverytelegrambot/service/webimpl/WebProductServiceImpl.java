@@ -30,7 +30,7 @@ public class WebProductServiceImpl implements WebProductService {
     public ApiResult<List<ProductWebDTO>> getAllByCategoryId(String chatId, Long categoryId) {
         if (tgUserRepository.existsByChatId(chatId)) {
             List<Product> products = productRepository
-                    .findAllByCategoryIdAndVariationsIsNotEmptyAndActiveIsTrueAndCategoryActiveIsTrueOrderByNumberAsc(categoryId);
+                    .findAllByCategoryIdAndVariationsIsNotEmptyAndActiveIsTrueAndCategoryActiveIsTrueAndVariationsActiveIsTrueOrderByNumberAsc(categoryId);
             List<ProductWebDTO> productWebDTOList = toProductWebDTOList(products, chatId);
             return ApiResult.success(productWebDTOList);
         } else {

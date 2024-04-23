@@ -27,4 +27,6 @@ public class VariationResDTO {
 
     private ProductDTO product;
 
+    private boolean active;
+
 }
