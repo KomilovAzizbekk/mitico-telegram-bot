@@ -22,11 +22,10 @@ public interface VariationRepository extends JpaRepository<Variation, Long> {
 
     List<Variation> findAllByProductIdAndActiveIsTrueOrderByNumberAsc(Long productId);
 
-
     List<Variation> findAllByMeasureUnitId(Long measureUnitId);
 
     @Query(value = "select * from variations v where v.id=:id", nativeQuery = true)
     Variation getVariation(Long id);
 
-    List<Variation> findAllByProductId(Long id);
+    List<Variation> findAllByProductIdAndActiveIsTrue(Long id);
 }

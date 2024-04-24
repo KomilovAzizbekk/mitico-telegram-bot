@@ -39,7 +39,7 @@ public class WebProductServiceImpl implements WebProductService {
     }
 
     private float getLowestPrice(Product product) {
-        List<Variation> variations = variationRepository.findAllByProductId(product.getId());
+        List<Variation> variations = variationRepository.findAllByProductIdAndActiveIsTrue(product.getId());
         float lowestPrice = variations.get(0).getPrice();
         for (Variation variation : variations) {
             if (lowestPrice > variation.getPrice())
@@ -49,7 +49,7 @@ public class WebProductServiceImpl implements WebProductService {
     }
 
     private Long getVariationId(Product product) {
-        List<Variation> variations = variationRepository.findAllByProductId(product.getId());
+        List<Variation> variations = variationRepository.findAllByProductIdAndActiveIsTrue(product.getId());
         float lowestPrice = variations.get(0).getPrice();
         Long id = variations.get(0).getId();
         for (Variation variation : variations) {
@@ -62,7 +62,7 @@ public class WebProductServiceImpl implements WebProductService {
     }
 
     private boolean oneVariation(Product product) {
-        List<Variation> variations = variationRepository.findAllByProductId(product.getId());
+        List<Variation> variations = variationRepository.findAllByProductIdAndActiveIsTrue(product.getId());
         return variations.size() == 1;
     }
 

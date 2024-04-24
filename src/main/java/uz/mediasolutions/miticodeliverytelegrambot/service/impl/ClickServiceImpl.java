@@ -228,8 +228,8 @@ public class ClickServiceImpl implements ClickService {
                 clickDTO.getError_note()
         );
 
-        tgService.execute(tgService.whenSendOrderToChannelClickOrPayme(invoice.getUser().getChatId()));
-        tgService.execute(tgService.whenSendOrderToUser(invoice.getUser().getChatId()));
+        tgService.execute(tgService.whenSendOrderToChannelClick(invoice.getUser().getChatId()));
+        tgService.execute(tgService.whenSendOrderToUserClick(invoice.getUser().getChatId()));
 
         log.info("preparePayment clickOrderDTO {}", clickOrderDTO);
         return clickOrderDTO;

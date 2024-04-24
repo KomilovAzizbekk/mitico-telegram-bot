@@ -55,7 +55,7 @@ public class BannerServiceImpl implements BannerService {
         Banner banner = bannerRepository.findById(id).orElseThrow(
                 () -> RestException.restThrow("ID NOT FOUND", HttpStatus.BAD_REQUEST));
         String imageUrl = banner.getImageUrl();
-        String imagePath = "delivery-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
+        String imagePath = "mitico-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
         try {
             Path path = Paths.get(imagePath);
             Files.deleteIfExists(path);

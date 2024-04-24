@@ -13,7 +13,7 @@ public class Params {
 
     private Account account;
 
-    private Integer amount;
+    private Long amount;
 
     private Long time;
 

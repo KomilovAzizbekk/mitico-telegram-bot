@@ -97,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
             String imageUrl = product.getImageUrl();
             if (imageUrl != null) {
                 if (!Objects.equals(imageUrl, dto.getImageUrl())) {
-                    String imagePath = "delivery-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
+                    String imagePath = "mitico-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
                     Path path = Paths.get(imagePath);
                     Files.deleteIfExists(path);
                 }
@@ -122,7 +122,7 @@ public class ProductServiceImpl implements ProductService {
                 () -> RestException.restThrow("ID NOT FOUND", HttpStatus.BAD_REQUEST));
         String imageUrl = product.getImageUrl();
         if (imageUrl != null) {
-            String imagePath = "delivery-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
+            String imagePath = "mitico-files/" + imageUrl.substring(imageUrl.lastIndexOf('/'));
             Path path = Paths.get(imagePath);
             Files.deleteIfExists(path);
         }

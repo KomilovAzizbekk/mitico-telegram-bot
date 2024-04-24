@@ -113,7 +113,7 @@ public class TgService extends TelegramLongPollingBot {
                     execute(makeService.whenGoPayment(update));
                 } else if (makeService.getUserStep(chatId).equals(StepName.SEND_ORDER_TO_CHANNEL)) {
                     execute(makeService.whenSendOrderToChannel(update));
-                    execute(whenSendOrderToUser(chatId));
+                    execute(whenSendOrderToUserClick(chatId));
                 } else if (makeService.getUserStep(chatId).equals(StepName.ORDER_CHOOSE)) {
                     execute(makeService.whenChosen(update));
                 } else if (makeService.getUserStep(chatId).equals(StepName.CHOOSE_PAYMENT) &&
@@ -170,10 +170,8 @@ public class TgService extends TelegramLongPollingBot {
         execute(deleteMessage);
     }
 
-    public SendMessage whenSendOrderToChannelClickOrPayme(String chatId) {
+    public SendMessage whenSendOrderToChannelPayme(String chatId, Order order) {
         String language = makeService.getUserLanguage(chatId);
-        List<Order> orderList = orderRepository.findAllByUserChatIdOrderByCreatedAtDesc(chatId);
-        Order order = orderList.get(0);
         order.setOrderStatus(orderStatusRepository.findByName(OrderStatusName.PENDING));
         order.setPaidSum(order.getTotalPrice());
         Order saved = orderRepository.save(order);
@@ -234,11 +232,87 @@ public class TgService extends TelegramLongPollingBot {
         return sendMessage;
     }
 
-    public SendMessage whenSendOrderToUser(String chatId) {
+    public SendMessage whenSendOrderToChannelClick(String chatId) {
+        String language = makeService.getUserLanguage(chatId);
+        List<Order> orders = orderRepository.findAllByUserChatIdOrderByCreatedAtDesc(chatId);
+        Order order = orders.get(0);
+        order.setOrderStatus(orderStatusRepository.findByName(OrderStatusName.PENDING));
+        order.setPaidSum(order.getTotalPrice());
+        Order saved = orderRepository.save(order);
+
+        String address;
+        String branchName = null;
+        String providerName;
+        String orderStatus;
+        Branch branch = order.getBranch();
+        if (language.equals("UZ")) {
+            if (order.getBranch() != null) {
+                branchName = branch.getNameUz();
+            }
+            providerName = order.getPaymentProviders().getName().getNameUz();
+            orderStatus = order.getOrderStatus().getName().getNameUz();
+        } else {
+            if (order.getBranch() != null) {
+                branchName = branch.getNameRu();
+            }
+            providerName = order.getPaymentProviders().getName().getNameRu();
+            orderStatus = order.getOrderStatus().getName().getNameRu();
+        }
+        if (order.isDelivery()) {
+            address = String.format("<a href=\"https://yandex.com/navi/?whatshere%%5Bzoom%%5D=18&whatshere%%5Bpoint%%5D=%f%%2C%f&lang=uz&from=navi\">%s</a>",
+                    order.getLon(),
+                    order.getLat(),
+                    makeService.getMessage(Message.IN_MAP, language));
+        } else {
+            assert branch != null;
+            address = makeService.getMessage(Message.WITH_OWN, language) + " - " +
+                    String.format("<a href=\"https://yandex.com/navi/?whatshere%%5Bzoom%%5D=18&whatshere%%5Bpoint%%5D=%f%%2C%f&lang=uz&from=navi\">%s</a>",
+                            branch.getLon(),
+                            branch.getLat(),
+                            branchName);
+        }
+        String format = order.getUpdatedAt().toLocalDateTime().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(MakeService.ORDER_CHANNEL_ID);
+        sendMessage.setText(
+                String.format(makeService.getMessage(Message.ORDER_MSG, language),
+                        order.getId(),
+                        order.getUser().getName(),
+                        order.getUser().getChatId(),
+                        order.getUser().getPhoneNumber(),
+                        address,
+                        format,
+                        makeService.allOrderedProducts(chatId, order.getId()),
+                        order.getComment() == null ? makeService.getMessage(Message.NO_INFO, language) : order.getComment(),
+                        providerName,
+                        order.getPrice(),
+                        order.getDeliveryPrice(),
+                        order.getTotalPrice(),
+                        saved.getPaidSum(),
+                        orderStatus));
+        sendMessage.setReplyMarkup(makeService.forSendOrderToChannel(chatId));
+        sendMessage.enableHtml(true);
+        return sendMessage;
+    }
+
+    public SendMessage whenSendOrderToUserPayme(String chatId, Order order) {
         String language = makeService.getUserLanguage(chatId);
 
-        List<Order> orderList = orderRepository.findAllByUserChatIdOrderByCreatedAtDesc(chatId);
-        Order order = orderList.get(0);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(String.format(
+                makeService.getMessage(Message.ORDER_PENDING, language), order.getId()));
+        sendMessage.enableHtml(true);
+        sendMessage.setReplyMarkup(makeService.forMainMenu(chatId));
+        makeService.setUserStep(chatId, StepName.PENDING_ORDER);
+        return sendMessage;
+    }
+
+    public SendMessage whenSendOrderToUserClick(String chatId) {
+        String language = makeService.getUserLanguage(chatId);
+        List<Order> orders = orderRepository.findAllByUserChatIdOrderByCreatedAtDesc(chatId);
+        Order order = orders.get(0);
 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);

@@ -18,7 +18,7 @@ public class Transactions {
 
     private Timestamp time;
 
-    private Integer amount;
+    private Long amount;
 
     private Account account;
 

@@ -192,8 +192,10 @@ public class PaymeServiceImpl implements PaymeService {
                     transactionRepository.save(transaction);
 
                     try {
-                        tgService.execute(tgService.whenSendOrderToUser(transaction.getOrder().getUser().getChatId()));
-                        tgService.execute(tgService.whenSendOrderToChannelClickOrPayme(transaction.getOrder().getUser().getChatId()));
+                        tgService.execute(tgService.whenSendOrderToUserPayme(transaction.getOrder().getUser().getChatId(),
+                                transaction.getOrder()));
+                        tgService.execute(tgService.whenSendOrderToChannelPayme(transaction.getOrder().getUser().getChatId(),
+                                transaction.getOrder()));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -266,23 +268,27 @@ public class PaymeServiceImpl implements PaymeService {
                 new Timestamp(requestForm.getParams().getFrom()),
                 new Timestamp(requestForm.getParams().getTo()));
 
-        for (OrderTransaction orderTransaction : orderTransactions) {
-            Transactions transactions = new Transactions(
-                    orderTransaction.getPaycomId(),
-                    orderTransaction.getPaycomTime(),
-                    (int) orderTransaction.getOrder().getTotalPrice(),
-                    new Account(orderTransaction.getOrder().getId()),
-                    orderTransaction.getCreateTime().getTime(),
-                    orderTransaction.getPerformTime().getTime(),
-                    orderTransaction.getCancelTime().getTime(),
-                    orderTransaction.getId().toString(),
-                    orderTransaction.getState().getCode(),
-                    orderTransaction.getReason()
-            );
-            transactionsList.add(transactions);
-        }
+        if (orderTransactions == null || orderTransactions.isEmpty()) {
+            response.setResult(new GetStatementResult());
+        } else {
+            for (OrderTransaction orderTransaction : orderTransactions) {
+                Transactions transactions = new Transactions(
+                        orderTransaction.getPaycomId(),
+                        orderTransaction.getPaycomTime(),
+                        (long) orderTransaction.getOrder().getTotalPrice(),
+                        new Account(orderTransaction.getOrder().getId()),
+                        orderTransaction.getCancelTime() != null ? orderTransaction.getCancelTime().getTime() : 0,
+                        orderTransaction.getCreateTime().getTime(),
+                        orderTransaction.getPerformTime().getTime(),
+                        orderTransaction.getId().toString(),
+                        orderTransaction.getState().getCode(),
+                        orderTransaction.getReason()
+                );
+                transactionsList.add(transactions);
+            }
 
-        response.setResult(new GetStatementResult(transactionsList));
+            response.setResult(new GetStatementResult(transactionsList));
+        }
     }
 
     @SneakyThrows
