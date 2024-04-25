@@ -324,18 +324,4 @@ public class TgService extends TelegramLongPollingBot {
         return sendMessage;
     }
 
-    public List<String> branchNames(Update update) {
-        String chatId = makeService.getChatId(update);
-        List<Branch> branches = branchRepository.findAllByActiveIsTrue();
-        List<String> branchNames = new ArrayList<>();
-        String language = makeService.getUserLanguage(chatId);
-        for (Branch branch : branches) {
-            if (language.equals("UZ")) {
-                branchNames.add(branch.getNameUz().trim());
-            } else {
-                branchNames.add(branch.getNameRu().trim());
-            }
-        }
-        return branchNames;
-    }
 }

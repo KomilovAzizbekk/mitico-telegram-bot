@@ -28,4 +28,6 @@ public interface VariationRepository extends JpaRepository<Variation, Long> {
     Variation getVariation(Long id);
 
     List<Variation> findAllByProductIdAndActiveIsTrue(Long id);
+
+    List<Variation> findAllByProductId(Long id);
 }
