@@ -26,7 +26,7 @@ public class ClickControllerImpl implements ClickController {
     }
 
     @Override
-    public ClickOrderDTO prepareMethod(ClickOrderDTO clickDTO) throws TelegramApiException {
+    public ClickOrderDTO prepareMethod(ClickOrderDTO clickDTO) {
         return clickService.prepareMethod(clickDTO);
     }
 

@@ -32,7 +32,7 @@ public interface ClickController {
 
     @RequestMapping(method = RequestMethod.POST, value = PREPARE)
     @ResponseBody
-    ClickOrderDTO prepareMethod(@ModelAttribute ClickOrderDTO clickDTO) throws TelegramApiException;
+    ClickOrderDTO prepareMethod(@ModelAttribute ClickOrderDTO clickDTO);
 
     @RequestMapping(method = RequestMethod.POST, value = COMPLETE)
     @ResponseBody

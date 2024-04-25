@@ -11,7 +11,7 @@ public interface ClickService {
 
     HttpEntity<?> create(Double amount, String chatId);
 
-    ClickOrderDTO prepareMethod(ClickOrderDTO clickDTO) throws TelegramApiException;
+    ClickOrderDTO prepareMethod(ClickOrderDTO clickDTO);
 
     ClickOrderDTO completeMethod(ClickOrderDTO clickDTO) throws TelegramApiException;
 
