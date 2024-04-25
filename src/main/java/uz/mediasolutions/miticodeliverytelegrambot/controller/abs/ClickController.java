@@ -30,29 +30,13 @@ public interface ClickController {
     HttpEntity<?> create(@RequestParam("amount") Double amount,
                          @RequestParam("chatId") String chatId);
 
-//    @GetMapping(STATUS_INVOICE)
-//    HttpEntity<?> getInvoiceStatus(@PathVariable String serviceId,
-//                                   @PathVariable String invoiceId);
-//
-//    @GetMapping(PAYMENT_STATUS)
-//    HttpEntity<?> getPaymentStatusByMerchantTransId(
-//            @PathVariable int serviceId,
-//            @PathVariable String merchantTransId);
-//
-//    @DeleteMapping(PAYMENT_REVERSAL)
-//    HttpEntity<?> paymentReversal(@PathVariable int serviceId,
-//                                  @PathVariable Long paymentId);
-//
-//    @PostMapping(CREATE_CARD_TOKEN)
-//    HttpEntity<?> createCardToken(@RequestBody CreateCardTokenDTO dto);
-
     @RequestMapping(method = RequestMethod.POST, value = PREPARE)
     @ResponseBody
     ClickOrderDTO prepareMethod(@ModelAttribute ClickOrderDTO clickDTO) throws TelegramApiException;
 
     @RequestMapping(method = RequestMethod.POST, value = COMPLETE)
     @ResponseBody
-    ClickOrderDTO completeMethod(@ModelAttribute ClickOrderDTO clickDTO);
+    ClickOrderDTO completeMethod(@ModelAttribute ClickOrderDTO clickDTO) throws TelegramApiException;
 
     @RequestMapping(method = RequestMethod.POST, value = GET_INFO)
     @ResponseBody

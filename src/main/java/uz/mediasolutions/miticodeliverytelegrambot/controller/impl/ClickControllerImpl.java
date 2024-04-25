@@ -25,23 +25,13 @@ public class ClickControllerImpl implements ClickController {
         return clickService.create(amount, chatId);
     }
 
-//    @Override
-//    public HttpEntity<?> getInvoiceStatus(String serviceId, String invoiceId) {
-//        return clickService.getInvoiceStatus(serviceId, invoiceId);
-//    }
-//
-//    @Override
-//    public HttpEntity<?> getPaymentStatusByMerchantTransId(int serviceId, String merchantTransId) {
-//        return clickService.paymentStatusByMerchantTransId(serviceId, merchantTransId);
-//    }
-
     @Override
     public ClickOrderDTO prepareMethod(ClickOrderDTO clickDTO) throws TelegramApiException {
         return clickService.prepareMethod(clickDTO);
     }
 
     @Override
-    public ClickOrderDTO completeMethod(ClickOrderDTO clickDTO) {
+    public ClickOrderDTO completeMethod(ClickOrderDTO clickDTO) throws TelegramApiException {
         return clickService.completeMethod(clickDTO);
     }
 

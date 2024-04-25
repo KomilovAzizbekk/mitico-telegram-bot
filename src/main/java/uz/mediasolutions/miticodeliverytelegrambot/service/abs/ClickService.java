@@ -11,14 +11,9 @@ public interface ClickService {
 
     HttpEntity<?> create(Double amount, String chatId);
 
-//    HttpEntity<?> getInvoiceStatus(String serviceId, String invoiceId);
-//
-//    HttpEntity<?> paymentStatusByMerchantTransId(int serviceId, String merchantTransId);
-
-
     ClickOrderDTO prepareMethod(ClickOrderDTO clickDTO) throws TelegramApiException;
 
-    ClickOrderDTO completeMethod(ClickOrderDTO clickDTO);
+    ClickOrderDTO completeMethod(ClickOrderDTO clickDTO) throws TelegramApiException;
 
     ClickOrderDTO getInfo(ClickOrderDTO clickDTO);
 }
