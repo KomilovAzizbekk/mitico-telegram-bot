@@ -56,8 +56,6 @@ public class VariationServiceImpl implements VariationService {
     public ApiResult<?> add(VariationDTO dto) {
         if (variationRepository.existsByNumber(dto.getNumber())) {
             throw RestException.restThrow("NUMBER MUST ME UNIQUE", HttpStatus.BAD_REQUEST);
-        } else if (variationRepository.existsByNameUzOrNameRu(dto.getNameUz(), dto.getNameRu())) {
-            throw RestException.restThrow("NAME ALREADY EXISTED", HttpStatus.BAD_REQUEST);
         } else {
             Variation entity = variationMapper.toEntity(dto);
             variationRepository.save(entity);

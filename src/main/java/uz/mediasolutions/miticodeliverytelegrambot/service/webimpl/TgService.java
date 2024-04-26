@@ -22,7 +22,6 @@ import uz.mediasolutions.miticodeliverytelegrambot.repository.TgUserRepository;
 import uz.mediasolutions.miticodeliverytelegrambot.utills.constants.Message;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
