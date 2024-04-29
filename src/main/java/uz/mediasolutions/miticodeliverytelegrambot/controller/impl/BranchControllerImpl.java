@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import uz.mediasolutions.miticodeliverytelegrambot.controller.abs.BranchController;
 import uz.mediasolutions.miticodeliverytelegrambot.manual.ApiResult;
 import uz.mediasolutions.miticodeliverytelegrambot.payload.BranchDTO;
-import uz.mediasolutions.miticodeliverytelegrambot.payload.LocationDTO;
 import uz.mediasolutions.miticodeliverytelegrambot.service.abs.BranchService;
 
 @RestController

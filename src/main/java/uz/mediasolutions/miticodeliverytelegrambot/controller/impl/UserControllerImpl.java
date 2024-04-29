@@ -34,4 +34,9 @@ public class UserControllerImpl implements UserController {
     public ApiResult<?> unbanUser(Long id) {
         return userService.unbanUser(id);
     }
+
+    @Override
+    public ApiResult<?> admin(Long id, boolean admin) {
+        return userService.admin(id, admin);
+    }
 }

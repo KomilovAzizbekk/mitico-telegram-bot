@@ -62,4 +62,13 @@ public class UserServiceImpl implements UserService {
         tgUserRepository.save(tgUser);
         return ApiResult.success("UNBANNED");
     }
+
+    @Override
+    public ApiResult<?> admin(Long id, boolean admin) {
+        TgUser user = tgUserRepository.findById(id).orElseThrow(
+                () -> RestException.restThrow("ID NOT FOUND", HttpStatus.BAD_REQUEST));
+        user.setAdmin(admin);
+        tgUserRepository.save(user);
+        return ApiResult.success("ADMIN RIGHTS EDITED");
+    }
 }

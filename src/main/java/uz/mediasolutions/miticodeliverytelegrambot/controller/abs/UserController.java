@@ -19,6 +19,8 @@ public interface UserController {
 
     String UNBAN = "unban/{id}";
 
+    String ADMIN = "admin/{id}";
+
 
     @GetMapping(GET_ALL)
     ApiResult<Page<TgUserDTO>> getAll(@RequestParam(defaultValue = Rest.DEFAULT_PAGE_NUMBER) int page,
@@ -33,5 +35,9 @@ public interface UserController {
 
     @PutMapping(UNBAN)
     ApiResult<?> unbanUser(@PathVariable Long id);
+
+    @PutMapping(ADMIN)
+    ApiResult<?> admin(@PathVariable Long id,
+                       @RequestParam boolean admin);
 
 }

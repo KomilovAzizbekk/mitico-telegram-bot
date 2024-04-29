@@ -12,4 +12,6 @@ public interface UserService {
     ApiResult<?> banUser(Long id);
 
     ApiResult<?> unbanUser(Long id);
+
+    ApiResult<?> admin(Long id, boolean admin);
 }
