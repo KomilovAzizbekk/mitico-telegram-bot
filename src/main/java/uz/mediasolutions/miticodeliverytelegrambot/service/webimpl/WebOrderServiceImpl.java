@@ -78,11 +78,6 @@ public class WebOrderServiceImpl implements WebOrderService {
                 throw RestException.restThrow("ORDER PRICE SHOULD BE HIGHER THAN " +
                         constants.getMinOrderPrice(), HttpStatus.BAD_REQUEST);
             }
-//            if (!basketRepository.existsByTgUserChatId(chatId)) {
-//                throw RestException.restThrow("YOU HAVE NOT BASKET", HttpStatus.BAD_REQUEST);
-//            }
-//            Basket basket = basketRepository.findByTgUserChatId(chatId);
-//            basketRepository.delete(basket);
 
             Order order = builder.build();
             orderRepository.save(order);

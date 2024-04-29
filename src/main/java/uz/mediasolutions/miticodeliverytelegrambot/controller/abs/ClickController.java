@@ -12,11 +12,7 @@ import uz.mediasolutions.miticodeliverytelegrambot.utills.constants.Rest;
 public interface ClickController {
 
     String CLICK = Rest.BASE_PATH + "click/merchant/";
-    String CREATE_INVOICE = "create/invoice";
-    String STATUS_INVOICE = "status/invoice/{serviceId}/{invoiceId}";
-    String PAYMENT_STATUS = "payment/status_by_mti/{serviceId}/{merchantTransId}";
-    String PAYMENT_REVERSAL = "payment/reversal/{serviceId}/{paymentId}";
-    String CREATE_CARD_TOKEN = "card_token/request";
+    String CREATE_INVOICE = "create/invoice";;
     String CREATE = "create";
     String PREPARE = "prepare";
     String COMPLETE = "complete";

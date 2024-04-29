@@ -910,11 +910,6 @@ public class MakeService {
     public HttpEntity<ResClickOrderDTO> createForTg(Double amount, String chatId) {
         TgUser tgUser = tgUserRepository.findByChatId(chatId);
 
-        Constants constants = constantsRepository.findById(1L).orElseThrow(
-                () -> RestException.restThrow("CONSTANTS NOT FOUND", HttpStatus.BAD_REQUEST));
-
-        if (amount < constants.getMinOrderPrice()) throw RestException.restThrow("MIN ORDER PRICE = " +
-                constants.getMinOrderPrice(), HttpStatus.BAD_REQUEST);
         ClickInvoice invoice = ClickInvoice.builder()
                 .status(PENDING)
                 .user(tgUser)
