@@ -75,8 +75,10 @@ public class WebOrderServiceImpl implements WebOrderService {
             builder.price(productPrice);
             builder.totalPrice(productPrice); //DELIVERY PRICE SHOULD BE ADDED
             if (productPrice < constants.getMinOrderPrice()) {
-                throw RestException.restThrow("ORDER PRICE SHOULD BE HIGHER THAN " +
-                        constants.getMinOrderPrice(), HttpStatus.BAD_REQUEST);
+                return ApiResult.error("ORDER PRICE SHOULD BE HIGHER THAN",
+                        (int) constants.getMinOrderPrice(), 200);
+//                throw RestException.restThrow("ORDER PRICE SHOULD BE HIGHER THAN " +
+//                        constants.getMinOrderPrice(), HttpStatus.BAD_REQUEST);
             }
 
             Order order = builder.build();

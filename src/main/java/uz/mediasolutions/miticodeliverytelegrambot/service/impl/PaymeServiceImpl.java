@@ -84,7 +84,7 @@ public class PaymeServiceImpl implements PaymeService {
 
         //ORDER SUM BILAN PAYCOMDAN KELGAN SUM TENGLIGI TEKSHIRILYAPTI
         Order order = optionalOrder.get();
-        if (((int) order.getTotalPrice()) * 100 != requestForm.getParams().getAmount()) {
+        if (((long) order.getTotalPrice()) * 100 != requestForm.getParams().getAmount()) {
             response.setError(new JSONRPC2Error(
                     -31001,
                     "Wrong amount",
@@ -119,7 +119,7 @@ public class PaymeServiceImpl implements PaymeService {
             return;
         }
 
-        if (requestForm.getParams().getAmount() != ((int) orderOptional.get().getTotalPrice()) *100) {
+        if (requestForm.getParams().getAmount() != ((long) orderOptional.get().getTotalPrice()) *100) {
             response.setError(new JSONRPC2Error(
                     -31001,
                     "Wrong amount",

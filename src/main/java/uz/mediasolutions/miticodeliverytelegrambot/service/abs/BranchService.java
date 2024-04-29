@@ -16,8 +16,6 @@ public interface BranchService {
 
     ApiResult<?> delete(Long id);
 
-    ApiResult<?> editLocation(Long id, LocationDTO locationDTO);
-
     ApiResult<?> hasActive();
 
 }

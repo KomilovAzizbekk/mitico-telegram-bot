@@ -746,8 +746,10 @@ public class MakeService {
                     order.getPrice() > constants.getMinOrderPriceForFreeDelivery()) {
                 order.setDeliveryPrice(0);
             } else {
-                float deliveryPrice = (float) (constants.getMinDeliveryPrice() +
+                int deliveryPrice = (int) (constants.getMinDeliveryPrice() +
                                                         (distance - constants.getRadiusFreeDelivery()) * constants.getPricePerKilometer());
+                deliveryPrice = deliveryPrice/1000;
+                deliveryPrice = deliveryPrice*1000;
                 order.setDeliveryPrice(deliveryPrice);
                 order.setTotalPrice(order.getPrice() + deliveryPrice);
             }

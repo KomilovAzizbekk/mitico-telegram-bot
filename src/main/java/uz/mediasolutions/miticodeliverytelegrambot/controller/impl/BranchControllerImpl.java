@@ -41,11 +41,6 @@ public class BranchControllerImpl implements BranchController {
     }
 
     @Override
-    public ApiResult<?> editLocation(Long id, LocationDTO locationDTO) {
-        return branchService.editLocation(id, locationDTO);
-    }
-
-    @Override
     public ApiResult<?> delete(Long id) {
         return branchService.delete(id);
     }

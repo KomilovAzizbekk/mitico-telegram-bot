@@ -66,11 +66,6 @@ public class BranchServiceImpl implements BranchService {
         Branch branch = branchRepository.findById(id).orElseThrow(
                 () -> RestException.restThrow("ID NOT FOUND", HttpStatus.BAD_REQUEST));
 
-//        if (branchRepository.existsByNameUzOrNameRu(branchDTO.getNameUz(), branchDTO.getNameRu()) &&
-//                !branchRepository.findByNameUzOrNameRu(branchDTO.getNameUz(), branchDTO.getNameRu())
-//                        .equals(branch)) {
-//            throw RestException.restThrow("NAME ALREADY EXISTED", HttpStatus.BAD_REQUEST);
-//        } else {
             branch.setNameUz(branchDTO.getNameUz());
             branch.setNameRu(branchDTO.getNameRu());
             branch.setAddressUz(branchDTO.getAddressUz());
@@ -78,10 +73,11 @@ public class BranchServiceImpl implements BranchService {
             branch.setActive(branchDTO.isActive());
             branch.setClosingTime(branchDTO.getClosingTime());
             branch.setOpeningTime(branchDTO.getOpeningTime());
+            branch.setLat(branchDTO.getLat());
+            branch.setLon(branchDTO.getLon());
             branch.setClosesAfterMn(branchDTO.isClosesAfterMn());
             branchRepository.save(branch);
             return ApiResult.success("EDITED SUCCESSFULLY");
-//        }
     }
 
     @Override
@@ -92,16 +88,6 @@ public class BranchServiceImpl implements BranchService {
         } catch (Exception e) {
             throw RestException.restThrow("CANNOT DELETE", HttpStatus.CONFLICT);
         }
-    }
-
-    @Override
-    public ApiResult<?> editLocation(Long id, LocationDTO locationDTO) {
-        Branch branch = branchRepository.findById(id).orElseThrow(
-                () -> RestException.restThrow("ID NOT FOUND", HttpStatus.BAD_REQUEST));
-        branch.setLat(locationDTO.getLat());
-        branch.setLon(locationDTO.getLon());
-        branchRepository.save(branch);
-        return ApiResult.success("EDITED SUCCESSFULLY");
     }
 
     @Override

@@ -25,8 +25,6 @@ public interface BranchController {
 
     String EDIT = "edit/{id}";
 
-    String EDIT_LOCATION = "edit-loc/{id}";
-
     String DELETE = "delete/{id}";
 
     @GetMapping(ACTIVE)
@@ -46,9 +44,6 @@ public interface BranchController {
 
     @PutMapping(EDIT)
     ApiResult<?> edit(@PathVariable Long id, @RequestBody @Valid BranchDTO branchDTO);
-
-    @PutMapping(EDIT_LOCATION)
-    ApiResult<?> editLocation(@PathVariable Long id, @RequestBody @Valid LocationDTO locationDTO);
 
     @DeleteMapping(DELETE)
     ApiResult<?> delete(@PathVariable Long id);

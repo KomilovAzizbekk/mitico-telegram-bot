@@ -17,10 +17,25 @@ public class ErrorData {
     //QAYSI FIELD XATO EKANLIGI
     private String fieldName;
 
+    private Integer fieldValue;
+
     //XATOLIK KODI
     private Integer errorCode;
+
     public ErrorData(String errorMsg, Integer errorCode) {
         this.errorMsg = errorMsg;
+        this.errorCode = errorCode;
+    }
+
+    public ErrorData(String errorMsg, Integer fieldValue, Integer errorCode) {
+        this.errorMsg = errorMsg;
+        this.fieldValue = fieldValue;
+        this.errorCode = errorCode;
+    }
+
+    public ErrorData(String errorMsg, String fieldName, Integer errorCode) {
+        this.errorMsg = errorMsg;
+        this.fieldName = fieldName;
         this.errorCode = errorCode;
     }
 
