@@ -684,7 +684,7 @@ public class MakeService {
 
     private static final double EARTH_RADIUS_KM = 6371;
 
-    public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    public static int calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         double lat1Rad = Math.toRadians(lat1);
         double lon1Rad = Math.toRadians(lon1);
         double lat2Rad = Math.toRadians(lat2);
@@ -698,7 +698,7 @@ public class MakeService {
                         Math.pow(Math.sin(deltaLon / 2), 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return EARTH_RADIUS_KM * c;
+        return (int) Math.ceil(EARTH_RADIUS_KM * c);
     }
 
     public Branch findClosestBranch(List<Branch> branches, double lat, double lon) {
@@ -707,11 +707,11 @@ public class MakeService {
         }
 
         Branch closestBranch = branches.get(0);
-        double minDistance = calculateDistance(closestBranch.getLat(), closestBranch.getLon(),
+        int minDistance = calculateDistance(closestBranch.getLat(), closestBranch.getLon(),
                 lat, lon);
 
         for (int i = 1; i < branches.size(); i++) {
-            double distance = calculateDistance(branches.get(i).getLat(), branches.get(i).getLon(),
+            int distance = calculateDistance(branches.get(i).getLat(), branches.get(i).getLon(),
                     lat, lon);
             if (distance < minDistance) {
                 minDistance = distance;
@@ -734,11 +734,7 @@ public class MakeService {
             order.setLat(latitude);
             Branch closestBranch = findClosestBranch(branchRepository.findAllByActiveIsTrue(), latitude,
                     longitude);
-            double distance = calculateDistance(closestBranch.getLat(), closestBranch.getLon(), latitude, longitude);
-
-            DecimalFormat df = new DecimalFormat("#.##");
-            String formattedValue = df.format(distance);
-            distance = Double.parseDouble(formattedValue);
+            int distance = calculateDistance(closestBranch.getLat(), closestBranch.getLon(), latitude, longitude);
 
             Constants constants = constantsRepository.findById(1L).orElseThrow(
                     () -> RestException.restThrow("CONSTANTS NOT FOUND", HttpStatus.BAD_REQUEST));
@@ -748,8 +744,10 @@ public class MakeService {
             } else {
                 int deliveryPrice = (int) (constants.getMinDeliveryPrice() +
                                                         (distance - constants.getRadiusFreeDelivery()) * constants.getPricePerKilometer());
-                deliveryPrice = deliveryPrice/1000;
-                deliveryPrice = deliveryPrice*1000;
+                if (deliveryPrice % 1000 != 0) {
+                    int a = deliveryPrice / 1000;
+                    deliveryPrice = a * 1000 + 1000;
+                }
                 order.setDeliveryPrice(deliveryPrice);
                 order.setTotalPrice(order.getPrice() + deliveryPrice);
             }
